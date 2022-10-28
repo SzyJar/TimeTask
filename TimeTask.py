@@ -25,7 +25,7 @@ def setEndTime():
         writer = csv.writer(file, delimiter=';')
         writer.writerow([taskTime])
 
-## Open data file if possible, if not then make data file
+## Open data file if possible, if not then make new data file
 try:
     with open('savedTasks.csv', newline='') as file:
         reader = csv.reader(file, delimiter=";")
