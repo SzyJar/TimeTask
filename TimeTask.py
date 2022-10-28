@@ -7,6 +7,7 @@ startTime = 0
 endTime = 0
 taskOngoing = 0
 
+## Functions
 def setStartTime():
     global startTime
     startTime = datetime.now()
