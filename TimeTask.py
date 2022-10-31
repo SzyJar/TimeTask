@@ -22,7 +22,7 @@ def setTaskName():
     global taskName
     taskName = entryTaskName.get()
     if taskName !='':
-        statusInfo.set('Currnet task name: '+ taskName)
+        statusInfo.set('Current task name: '+ taskName)
     else:
         statusInfo.set('Waiting for task name...')
 
@@ -33,7 +33,7 @@ def setStartTime():
         startTime = datetime.now()
         global taskOngoing
         taskOngoing = 1
-        root.title("TimeTask (Current task: "+taskName+")")
+        root.title("TimeTask (Current task running: "+taskName+")")
     else:
         messagebox.showwarning("No task name", "Please set task name before starting task time counter.")
 
@@ -44,7 +44,7 @@ def setEndTime():
     global taskOngoing
     if taskOngoing == 1:
         taskOngoing = 0
-        root.title("TimeTask (Idle - no task ongoing)")
+        root.title("TimeTask (Idle - no task running)")
         global taskTime    
         taskTime = endTime - startTime
         print(taskTime)
@@ -52,6 +52,24 @@ def setEndTime():
             writer = csv.writer(file, delimiter=';')
             writer.writerow([taskTime, taskName])
 
+## list all tasks found in data file
+def getTask():
+    listTasks.delete(0,99)
+    taskDataHours=0
+    taskDataMinute=0
+    taskDataSecond=0
+    taskDataTime=datetime.now()-datetime.now()
+    ## read exisitng tasks
+    with open('savedTasks.csv', newline='') as file:
+        reader = csv.reader(file, delimiter=";")
+        for row in reader:
+            taskData=''.join(row)
+            taskDataName=taskData[14:]
+            taskDataHours=int(taskData[:1])
+            taskDataMinute=int(taskData[2:4])
+            taskDataSecond=int(taskData[5:7])
+            listTasks.insert(0, "Task: "+str(taskDataName)+", Time: "+str(taskDataHours)+" hours "+str(taskDataMinute)+" minutes "+str(taskDataSecond)+" seconds")
+            
 #### GUI
 root = tk.Tk()
 root.title("TimeTask (Idle - no task ongoing)")
@@ -83,8 +101,13 @@ labelStatus=tk.Label(canvas, textvariable=statusInfo, bg="#404040", fg="white", 
 labelStatus.place(x=150, y=340, height = 30, width = 200)
 
 ##show data from file
-frameTasks=tk.Frame(canvas, height=320, width=483, bg ="#595959")
+frameTasks=tk.Frame(canvas, height=320, width=485, bg ="#595959")
 frameTasks.place(x=10, y=10)
 
+refreshImage=tk.PhotoImage(file=r"refresh.png")
+buttonRefresh=tk.Button(frameTasks, image=refreshImage, bg="#ffffff", command=getTask)
+buttonRefresh.place(x=0,y=0, height = 27, width = 27)
+listTasks=tk.Listbox(frameTasks, bg ="#595959", fg="white", height=19, width=50, font=("Tahoma 14"), selectmode="single", relief="solid")
+listTasks.place(x=-2, y=30)
 
 root.mainloop()
