@@ -73,6 +73,7 @@ def getTask():
                 taskHolderName.append(taskDataName)
                 taskHolderTime.append(taskDataDate)
             listTasks.delete(0,99)
+            #list tasks
             for i in range(len(taskHolderName)):
                 listTasks.insert(0, "Task: "+str(taskHolderName[i])+" Time: "+str(taskHolderTime[i]))
             
