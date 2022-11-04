@@ -7,7 +7,7 @@ startTime = 0
 endTime = 0
 taskOngoing = 0
 taskName = ''
-
+newFileMessage = 0
 ## Open data file if exists, if not then make new data file
 try:
     with open('savedTasks.csv', newline='') as file:
@@ -15,7 +15,7 @@ try:
 except:
     with open('savedTasks.csv', 'w', newline='') as file:
         writer = csv.writer(file)
-    messagebox.showinfo("New data file has been created", "Unable to find existing data file, new data file has been created")
+    newFileMessage = 1
 
 ## Set task name
 def setTaskName():
@@ -51,12 +51,12 @@ def setEndTime():
             writer = csv.writer(file, delimiter=';')
             writer.writerow([taskTime, taskName])
 
-## list all tasks found in data file
+## List all tasks found in data file
 def getTask():
     taskHolderTime = [datetime.now()-datetime.now()]
     taskDataDate = datetime.now()-datetime.now()
     taskHolderName = []
-    ## read exisitng tasks
+    ## Read exisitng tasks
     with open('savedTasks.csv', newline='') as file:
         reader = csv.reader(file, delimiter=";")
         for row in reader:
@@ -72,11 +72,37 @@ def getTask():
             if match == 0:
                 taskHolderName.append(taskDataName)
                 taskHolderTime.append(taskDataDate)
-            listTasks.delete(0,99)
-            #list tasks
+            listTasks.delete(0,'end')
+            #List tasks
             for i in range(len(taskHolderName)):
-                listTasks.insert(0, "Task: "+str(taskHolderName[i])+" Time: "+str(taskHolderTime[i]))
-            
+                stringList = "Task: "+str(taskHolderName[i])+"\t\t Time: "+str(taskHolderTime[i])
+                listTasks.insert('end', stringList)
+   
+## Record deletion
+def deleteRecord():
+    if listTasks.curselection() !=():
+        record = 0
+        nameToDel =''
+        recordList=[]
+        newList=[]
+        for char in listTasks.get(listTasks.curselection()):
+            if char  =='\t':
+                break
+            if record == 1:
+                nameToDel = nameToDel+char
+            if char==' ' and record != 1:
+                record=1            
+        with open('savedTasks.csv', newline='') as file:
+            eraser = csv.reader(file, delimiter=";")
+            for row in eraser:
+                recordList.append(row)
+        for i in range(len(recordList)):
+            if recordList[i][1] != nameToDel:
+                newList.append(recordList[i])
+        with open('savedTasks.csv', 'w', newline='') as file:
+            writer = csv.writer(file, delimiter=";")
+            for i in range(len(newList)):
+                writer.writerow([newList[i][0], newList[i][1]])
 #### GUI
 root = tk.Tk()
 root.title("TimeTask (Idle - no task running)")
@@ -101,20 +127,28 @@ entryTaskName.place(x=250, y=380, height = 30, width = 150)
 labelTaskName=tk.Label(canvas, text="Enter task name:", bg="#404040", fg="white", font=("Tahoma", 12), justify="left")
 labelTaskName.place(x=100, y=380, height = 30, width = 150)
 
-## show status
+## Show status
 statusInfo=StringVar()
 statusInfo.set('Waiting for task name...')
 labelStatus=tk.Label(canvas, textvariable=statusInfo, bg="#404040", fg="white", font=("Tahoma", 12), justify="center")
 labelStatus.place(x=50, y=340, height = 30, width = 400)
 
-##show data from file
+## Show data from file
 frameTasks=tk.Frame(canvas, height=320, width=485, bg ="#595959")
 frameTasks.place(x=10, y=10)
 
 refreshImage=tk.PhotoImage(file=r"refresh.png")
 buttonRefresh=tk.Button(frameTasks, image=refreshImage, bg="#ffffff", command=getTask)
-buttonRefresh.place(x=0,y=0, height = 27, width = 27)
+buttonRefresh.place(x=5,y=3, height = 27, width = 27)
 listTasks=tk.Listbox(frameTasks, bg ="#595959", fg="white", height=19, width=50, font=("Tahoma 14"), selectmode="single", relief="solid")
 listTasks.place(x=-2, y=30)
+
+## Delete record
+buttonRecord=tk.Button(frameTasks, text="Delete task", command=deleteRecord, font=("Tahoma 9"))
+buttonRecord.place(x=380,y=3, height = 27, width = 100)
+  
+##New data file message
+if newFileMessage == 1:
+    messagebox.showinfo("New data file has been created", "Unable to find existing data file, new data file has been created")
 
 root.mainloop()
