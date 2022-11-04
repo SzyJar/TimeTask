@@ -1,5 +1,5 @@
 # TimeTask
-Application is used to count time spend on various tasks.
+Application used to count time spend on various tasks.
 
 Taks are saved to .csv file.
 
