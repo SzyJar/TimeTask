@@ -1,7 +1,7 @@
 # TimeTask
 Application used to count time spend on various tasks.
 
-Taks are saved to .csv file.
+Tasks are saved to .csv file.
 
 Saved tasks can be viewed in apllication.
 
