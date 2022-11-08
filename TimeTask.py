@@ -76,7 +76,7 @@ def getTask():
                 taskHolderName.append(taskDataName)
                 taskHolderTime.append(taskDataDate)
             listTasks.delete(0,'end')
-            # List tasks
+            ## List tasks
             for i in range(len(taskHolderName)):
                 stringList = "Task: "+str(taskHolderName[i])+"\t Time: \t"+str(taskHolderTime[i])
                 listTasks.insert('end', stringList)
@@ -228,7 +228,7 @@ buttonRecord.place(x=380,y=3, height = 27, width = 100)
 buttonEdit=tk.Button(frameTasks, text="Edit task", command=editTask, font=("Tahoma 9"))
 buttonEdit.place(x=270,y=3, height = 27, width = 100)
 
-##New data file message
+## New data file message
 if newFileMessage == 1:
     messagebox.showinfo("New data file has been created", "Unable to find existing data file, new data file has been created")
 
