@@ -94,17 +94,6 @@ def getName():
             if char==' ' and record != 1:
                 record=1
         return(name)
-## Get task time from program list as string
-def getTime():
-    if listTasks.curselection() !=():
-        record = 0
-        time =''
-        for char in listTasks.get(listTasks.curselection()):
-            if record == 2:
-                time = time+char
-            if char  =='\t':
-                record=record+1
-        return(time)
 
 ## Record deletion
 def deleteRecord():
@@ -128,37 +117,63 @@ def deleteRecord():
 ## Edit time
 def editTask():
     if listTasks.curselection() !=():
+        global editName
         editName = getName()
         global editWindowIsOpen
         if editWindowIsOpen == 0:
+            global editWindow
             editWindow = tk.Toplevel(root)
             editWindow.title("Edit task time")
             editWindow.protocol('WM_DELETE_WINDOW', lambda: closeWindow(editWindow))
             editCanvas = tk.Canvas(editWindow, height=150, width=310, bg ="#404040").pack()
             labelText=StringVar()
-            labelText.set("Edit time spend on "+str(editName)+" task:")
+            labelText.set("Add time to: "+str(editName)+" [mm:ss]")
             labelEdit=tk.Label(editWindow, textvariable=labelText, bg="#404040", fg="white", font=("Tahoma", 12), justify="center")
             labelEdit.place(x=5, y=20, height = 30, width = 300)
 
-            entryEdit_H=tk.Entry(editWindow, justify="center")
-            entryEdit_H.place(x=100, y=50, height = 30, width = 30)
+            global entryEdit_M
             entryEdit_M=tk.Entry(editWindow, justify="center")
-            entryEdit_M.place(x=140, y=50, height = 30, width = 30)
+            entryEdit_M.place(x=100, y=50, height = 30, width = 50)
+            entryEdit_M.insert(0,'00')
+            global entryEdit_S
             entryEdit_S=tk.Entry(editWindow, justify="center")
-            entryEdit_S.place(x=180, y=50, height = 30, width = 30)
+            entryEdit_S.place(x=160, y=50, height = 30, width = 50)
+            entryEdit_S.insert(0,'00')
 
-            buttonEditApply=tk.Button(editWindow, text="Remove time", command=applyChange, font=("Tahoma 9 bold"))
-            buttonEditApply.place(x=50,y=90, height = 50, width = 100)
-
-            buttonEditApply=tk.Button(editWindow, text="Add time", command=applyChange, font=("Tahoma 9 bold"))
-            buttonEditApply.place(x=160,y=90, height = 50, width = 100)
+            buttonEditApply=tk.Button(editWindow, text="Add time", font=("Tahoma 9 bold"), command=lambda: applyChange())
+            buttonEditApply.place(x=105,y=90, height = 50, width = 100)
             editWindowIsOpen = 1
 
 def applyChange():
-    taskName = entryTaskName.get()
-    taskHour = entryEdit_H.get()
-    taskMinute = entryEdit_M.get()
-    taskSecond = entryEdit_H.get()
+    try:
+        taskMinute = int(entryEdit_M.get())
+        taskSecond = int(entryEdit_S.get())
+        if taskMinute>59:
+            taskMinute = 59
+            entryEdit_M.delete(0, 'end')
+            entryEdit_M.insert(0, '59')
+        if taskSecond>59:
+            taskSecond = 59
+            entryEdit_S.delete(0, 'end')
+            entryEdit_S.insert(0, '59')
+        if taskMinute<0:
+            taskMinute = 0
+            entryEdit_M.delete(0, 'end')
+            entryEdit_M.insert(0, '0')
+        if taskSecond<0:
+            taskSecond = 0
+            entryEdit_S.delete(0, 'end')
+            entryEdit_S.insert(0, '0')
+        taskTimeEdit=timedelta(hours=0, minutes=taskMinute, seconds=taskSecond, microseconds=1)
+        with open('savedTasks.csv', 'a', newline='') as file:
+            writer = csv.writer(file, delimiter=';')
+            writer.writerow([taskTimeEdit, editName])
+        getTask()
+    except:
+        entryEdit_M.delete(0, 'end')
+        entryEdit_S.delete(0, 'end')
+        labelInput=tk.Label(editWindow, text="Unable to process input", bg="#404040", fg="#ffcccc", font=("Tahoma", 9), justify="center")
+        labelInput.place(x=5, y=8, height = 15, width = 300)
 
 def closeWindow(window):
     global editWindowIsOpen
