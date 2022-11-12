@@ -25,6 +25,7 @@ class Database:
 
     # Get data from database file
     def getTasks(self):
+        listTasks.delete(0,'end')
         taskHolderName = []
         taskHolderTime = []
         with open(self.fileName, newline='') as file:
@@ -43,26 +44,28 @@ class Database:
                     taskHolderName.append(taskName)
                     taskHolderTime.append(taskTime)
                 listTasks.delete(0,'end')
-                ## List tasks
+                # List tasks
                 for i in range(len(taskHolderName)):
                     stringList = "Task: "+str(taskHolderName[i])+"\t Time: \t"+str(taskHolderTime[i])
                     listTasks.insert('end', stringList)                
 
-    ## Set task name
+    # Set task name
     def setTaskName(self, taskName):
-        self.taskName = taskName
-        if self.taskName !='':
-            return('Current task name: '+ self.taskName)
+        if self.taskOngoing == 0:
+            self.taskName = taskName
+            if self.taskName !='':
+                return('Current task name: '+ self.taskName)
+            else:
+                return('Waiting for task name...')
         else:
-            return('Waiting for task name...')
-
-    ## Get start time
+            return("Current task running: "+self.taskName)
+    # Get start time
     def setStartTime(self):
-        if self.taskName != "":
+        if self.taskName != "" and self.taskOngoing == 0:
             self.startTime = datetime.now()
             self.taskOngoing = 1
 
-    ## Get task time and write it to data file
+    # Get task time and write it to data file
     def setEndTime(self):
         endTime = datetime.now()
         if self.taskOngoing == 1:
@@ -72,7 +75,7 @@ class Database:
                 writer = csv.writer(file, delimiter=';')
                 writer.writerow([taskTime, self.taskName])
 
-    ## Get task name from program list
+    # Get task name from program list
     def getName(self, listSelection):
         if listSelection !='':
             record = 0
@@ -86,7 +89,7 @@ class Database:
                     record=1
             return(name)
 
-    ## Record deletion
+    # Delete task
     def deleteRecord(self, listSelection):
         if  listSelection != '':
             nameToDel = self.getName(listSelection)
@@ -104,12 +107,12 @@ class Database:
                 for i in range(len(newList)):
                     writer.writerow([newList[i][0], newList[i][1]])
 
-    ## Edit time
+    # Edit time
     def editTask(self, listSelection):
         if listSelection !='':
             self.editName = self.getName(listSelection)
             if self.editWindowIsOpen == 0:
-                self.editWindow = tk.Toplevel(root)
+                self.editWindow = tk.Toplevel()
                 self.editWindow.title("Edit task time")
                 self.editWindow.protocol('WM_DELETE_WINDOW', lambda: self.closeWindow(self.editWindow))
                 editCanvas = tk.Canvas(self.editWindow, height=150, width=310, bg ="#404040").pack()
@@ -119,12 +122,15 @@ class Database:
                 labelEdit.place(x=5, y=20, height = 30, width = 300)
 
                 self.entryEdit_M=tk.Entry(self.editWindow, justify="center")
-                self.entryEdit_M.place(x=100, y=50, height = 30, width = 50)
-                self.entryEdit_M.insert(0,'00')
+                self.entryEdit_M.place(x=95, y=50, height = 30, width = 50)
+                self.entryEdit_M.insert(0,'0')
+
+                labelColon=tk.Label(self.editWindow, text=":", bg="#404040", fg="white", font=("Tahoma", 12), justify="center")
+                labelColon.place(x=153, y=50, height = 30, width = 6)
 
                 self.entryEdit_S=tk.Entry(self.editWindow, justify="center")
-                self.entryEdit_S.place(x=160, y=50, height = 30, width = 50)
-                self.entryEdit_S.insert(0,'00')
+                self.entryEdit_S.place(x=165, y=50, height = 30, width = 50)
+                self.entryEdit_S.insert(0,'0')
 
                 buttonEditApply=tk.Button(self.editWindow, text="Add time", font=("Tahoma 9 bold"), command=lambda:
                  [self.applyChange(), self.getTasks()])
@@ -158,9 +164,11 @@ class Database:
         except:
             self.entryEdit_M.delete(0, 'end')
             self.entryEdit_S.delete(0, 'end')
+            self.entryEdit_M.insert(0, '0')
+            self.entryEdit_S.insert(0, '0')
             labelInput=tk.Label(self.editWindow, text="Unable to process input", bg="#404040", fg="#ffcccc", font=("Tahoma", 9), justify="center")
             labelInput.place(x=5, y=8, height = 15, width = 300)
-
+            
     def closeWindow(self, window):
         self.editWindowIsOpen = 0
         window.destroy()
@@ -176,6 +184,7 @@ def windowName():
         root.title("TimeTask (Idle - no task running)")
     else:
         root.title("TimeTask (Current task running: "+data.taskName+")")
+        statusInfo.set("Current task running: "+data.taskName)
 
 data = Database()
 
@@ -185,7 +194,7 @@ root.title("TimeTask (Idle - no task running)")
 root.resizable(width=False, height=False)
 canvas = tk.Canvas(root, height=500, width=500, bg ="#404040").pack()
 
-## Buttons
+# Buttons
 buttonStart=tk.Button(canvas, text="Start task", font=("Tahoma 9 bold"), command=lambda:
  [data.setStartTime(), noNameMessage(), windowName()])
 buttonStart.place(x=50,y=430, height = 50, width = 100)
@@ -198,32 +207,32 @@ buttonEnd=tk.Button(canvas, text="End task", font=("Tahoma 9 bold"), command=lam
  [data.setEndTime(), windowName(), data.getTasks()])
 buttonEnd.place(x=350,y=430, height = 50, width = 100)
 
-## Entry box
+# Entry box
 entryTaskName=tk.Entry(canvas, justify="center")
 entryTaskName.place(x=250, y=380, height = 30, width = 150)
 
 labelTaskName=tk.Label(canvas, text="Enter task name:", bg="#404040", fg="white", font=("Tahoma", 12), justify="left")
 labelTaskName.place(x=100, y=380, height = 30, width = 150)
 
-## Show status
+# Show status
 statusInfo=StringVar()
 statusInfo.set('Waiting for task name...')
 labelStatus=tk.Label(canvas, textvariable=statusInfo, bg="#404040", fg="white", font=("Tahoma", 12), justify="center")
 labelStatus.place(x=50, y=340, height = 30, width = 400)
 
-## List with tasks from data file
+# Listbox with tasks
 frameTasks=tk.Frame(canvas, height=320, width=485, bg ="#595959")
 frameTasks.place(x=10, y=10)
 
 listTasks=tk.Listbox(frameTasks, bg ="#595959", fg="white", height=19, width=50, font=("Tahoma 14"), selectmode="single", relief="solid")
 listTasks.place(x=-2, y=30)
 
-## Delete record
+# Delete record
 buttonRecord=tk.Button(frameTasks, text="Delete task", font=("Tahoma 9"), command=lambda:
  [data.deleteRecord(listTasks.get(listTasks.curselection())), data.getTasks()])
 buttonRecord.place(x=380,y=3, height = 27, width = 100)
 
-## Edit Task time
+# Edit Task time
 buttonEdit=tk.Button(frameTasks, text="Edit task", font=("Tahoma 9"), command=lambda:
  [data.editTask(listTasks.get(listTasks.curselection()))])
 buttonEdit.place(x=270,y=3, height = 27, width = 100)
