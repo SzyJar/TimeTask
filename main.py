@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import StringVar, messagebox
 import csv as csv
 
+
 class Database:
     def __init__(self):
         self.fileName = "savedTasks.csv"
@@ -46,8 +47,8 @@ class Database:
                 listTasks.delete(0,'end')
                 # List tasks
                 for i in range(len(taskHolderName)):
-                    stringList = "Task: "+str(taskHolderName[i])+"\t Time: \t"+str(taskHolderTime[i])
-                    listTasks.insert('end', stringList)                
+                    stringList = "Task: " + str(taskHolderName[i]) + "\t" + "   " + "Time: \t"+str(taskHolderTime[i])
+                    listTasks.insert('end', stringList) 
 
     # Set task name
     def setTaskName(self, taskName):
@@ -186,6 +187,20 @@ def windowName():
         root.title("TimeTask (Current task running: "+data.taskName+")")
         statusInfo.set("Current task running: "+data.taskName)
 
+def selectName(event):
+    select = event.widget.curselection()
+    if select:
+        index = select[0]
+        text = ""
+        for i in event.widget.get(index)[6:]:
+            if i == '\t':
+                break
+            text = text + i
+        print(text)
+        entryTaskName.delete(0, 'end')
+        entryTaskName.insert(0, text)
+        statusInfo.set(data.setTaskName(entryTaskName.get()))
+
 data = Database()
 
 #### GUI
@@ -204,15 +219,15 @@ buttonSet=tk.Button(canvas, text="Set task name", font=("Tahoma 9 bold"), comman
 buttonSet.place(x=200,y=430, height = 50, width = 100)
 
 buttonEnd=tk.Button(canvas, text="End task", font=("Tahoma 9 bold"), command=lambda:
- [data.setEndTime(), windowName(), data.getTasks()])
+ [data.setEndTime(), windowName(), data.getTasks(), statusInfo.set(data.setTaskName(entryTaskName.get()))])
 buttonEnd.place(x=350,y=430, height = 50, width = 100)
 
 # Entry box
 entryTaskName=tk.Entry(canvas, justify="center")
-entryTaskName.place(x=250, y=380, height = 30, width = 150)
+entryTaskName.place(x=255, y=380, height = 30, width = 150)
 
-labelTaskName=tk.Label(canvas, text="Enter task name:", bg="#404040", fg="white", font=("Tahoma", 12), justify="left")
-labelTaskName.place(x=100, y=380, height = 30, width = 150)
+labelTaskName=tk.Label(canvas, text="Enter new task name:", bg="#404040", fg="white", font=("Tahoma", 12), justify="left")
+labelTaskName.place(x=95, y=380, height = 30, width = 150)
 
 # Show status
 statusInfo=StringVar()
@@ -226,6 +241,7 @@ frameTasks.place(x=10, y=10)
 
 listTasks=tk.Listbox(frameTasks, bg ="#595959", fg="white", height=19, width=50, font=("Tahoma 14"), selectmode="single", relief="solid")
 listTasks.place(x=-2, y=30)
+listTasks.bind("<<ListboxSelect>>", selectName)
 
 # Delete record
 buttonRecord=tk.Button(frameTasks, text="Delete task", font=("Tahoma 9"), command=lambda:
