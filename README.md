@@ -7,7 +7,7 @@ Application allows to track time spend on various tasks.
 Tasks are saved to .csv file.<br/>
 Saved tasks can be viewed in apllication.<br/>
 User can set custom task names.<br/>
-Task with same name are summed up and shown as one.
+Tasks with same name are summed up and shown as one.
 
 Application also provides tools for editing and deleting tasks from .csv file.
 
