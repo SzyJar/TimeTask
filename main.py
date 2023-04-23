@@ -227,7 +227,7 @@ entryTaskName=tk.Entry(canvas, justify="center")
 entryTaskName.place(x=255, y=380, height = 30, width = 150)
 
 labelTaskName=tk.Label(canvas, text="Enter new task name:", bg="#404040", fg="white", font=("Tahoma", 12), justify="left")
-labelTaskName.place(x=95, y=380, height = 30, width = 150)
+labelTaskName.place(x=95, y=380, height = 30, width = 170)
 
 # Show status
 statusInfo=StringVar()
